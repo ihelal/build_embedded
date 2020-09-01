@@ -116,7 +116,7 @@ static const char GETMAP[] = "rtabmap_ros/GetMap";
     }
 
     const char * getType(){ return GETMAP; };
-    const char * getMD5(){ return "be1186efbdcde47a41d62ec7fd4dcf0a"; };
+    const char * getMD5(){ return "2a2a05e03192fc99c42c8a9652380236"; };
 
   };
 

@@ -68,7 +68,7 @@ namespace rtabmap_ros
     }
 
     const char * getType(){ return "rtabmap_ros/MapData"; };
-    const char * getMD5(){ return "363079139b951c370e18ce85bf2f22e2"; };
+    const char * getMD5(){ return "f36b87edafed09efe6ce296428b3f410"; };
 
   };
 

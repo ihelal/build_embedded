@@ -10,7 +10,7 @@
 #include "geometry_msgs/Transform.h"
 #include "rtabmap_ros/Point3f.h"
 #include "rtabmap_ros/KeyPoint.h"
-#include "sensor_msgs/PointCloud2.h"
+#include "rtabmap_ros/GlobalDescriptor.h"
 
 namespace rtabmap_ros
 {
@@ -112,12 +112,18 @@ namespace rtabmap_ros
       typedef rtabmap_ros::KeyPoint _wordKpts_type;
       _wordKpts_type st_wordKpts;
       _wordKpts_type * wordKpts;
-      typedef sensor_msgs::PointCloud2 _wordPts_type;
-      _wordPts_type wordPts;
-      uint32_t descriptors_length;
-      typedef uint8_t _descriptors_type;
-      _descriptors_type st_descriptors;
-      _descriptors_type * descriptors;
+      uint32_t wordPts_length;
+      typedef rtabmap_ros::Point3f _wordPts_type;
+      _wordPts_type st_wordPts;
+      _wordPts_type * wordPts;
+      uint32_t wordDescriptors_length;
+      typedef uint8_t _wordDescriptors_type;
+      _wordDescriptors_type st_wordDescriptors;
+      _wordDescriptors_type * wordDescriptors;
+      uint32_t globalDescriptors_length;
+      typedef rtabmap_ros::GlobalDescriptor _globalDescriptors_type;
+      _globalDescriptors_type st_globalDescriptors;
+      _globalDescriptors_type * globalDescriptors;
 
     NodeData():
       id(0),
@@ -151,8 +157,9 @@ namespace rtabmap_ros
       grid_view_point(),
       wordIds_length(0), wordIds(NULL),
       wordKpts_length(0), wordKpts(NULL),
-      wordPts(),
-      descriptors_length(0), descriptors(NULL)
+      wordPts_length(0), wordPts(NULL),
+      wordDescriptors_length(0), wordDescriptors(NULL),
+      globalDescriptors_length(0), globalDescriptors(NULL)
     {
     }
 
@@ -448,15 +455,30 @@ namespace rtabmap_ros
       for( uint32_t i = 0; i < wordKpts_length; i++){
       offset += this->wordKpts[i].serialize(outbuffer + offset);
       }
-      offset += this->wordPts.serialize(outbuffer + offset);
-      *(outbuffer + offset + 0) = (this->descriptors_length >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (this->descriptors_length >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (this->descriptors_length >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (this->descriptors_length >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->descriptors_length);
-      for( uint32_t i = 0; i < descriptors_length; i++){
-      *(outbuffer + offset + 0) = (this->descriptors[i] >> (8 * 0)) & 0xFF;
-      offset += sizeof(this->descriptors[i]);
+      *(outbuffer + offset + 0) = (this->wordPts_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (this->wordPts_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (this->wordPts_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (this->wordPts_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->wordPts_length);
+      for( uint32_t i = 0; i < wordPts_length; i++){
+      offset += this->wordPts[i].serialize(outbuffer + offset);
+      }
+      *(outbuffer + offset + 0) = (this->wordDescriptors_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (this->wordDescriptors_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (this->wordDescriptors_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (this->wordDescriptors_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->wordDescriptors_length);
+      for( uint32_t i = 0; i < wordDescriptors_length; i++){
+      *(outbuffer + offset + 0) = (this->wordDescriptors[i] >> (8 * 0)) & 0xFF;
+      offset += sizeof(this->wordDescriptors[i]);
+      }
+      *(outbuffer + offset + 0) = (this->globalDescriptors_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (this->globalDescriptors_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (this->globalDescriptors_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (this->globalDescriptors_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->globalDescriptors_length);
+      for( uint32_t i = 0; i < globalDescriptors_length; i++){
+      offset += this->globalDescriptors[i].serialize(outbuffer + offset);
       }
       return offset;
     }
@@ -836,25 +858,48 @@ namespace rtabmap_ros
       offset += this->st_wordKpts.deserialize(inbuffer + offset);
         memcpy( &(this->wordKpts[i]), &(this->st_wordKpts), sizeof(rtabmap_ros::KeyPoint));
       }
-      offset += this->wordPts.deserialize(inbuffer + offset);
-      uint32_t descriptors_lengthT = ((uint32_t) (*(inbuffer + offset))); 
-      descriptors_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
-      descriptors_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
-      descriptors_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
-      offset += sizeof(this->descriptors_length);
-      if(descriptors_lengthT > descriptors_length)
-        this->descriptors = (uint8_t*)realloc(this->descriptors, descriptors_lengthT * sizeof(uint8_t));
-      descriptors_length = descriptors_lengthT;
-      for( uint32_t i = 0; i < descriptors_length; i++){
-      this->st_descriptors =  ((uint8_t) (*(inbuffer + offset)));
-      offset += sizeof(this->st_descriptors);
-        memcpy( &(this->descriptors[i]), &(this->st_descriptors), sizeof(uint8_t));
+      uint32_t wordPts_lengthT = ((uint32_t) (*(inbuffer + offset))); 
+      wordPts_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      wordPts_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      wordPts_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      offset += sizeof(this->wordPts_length);
+      if(wordPts_lengthT > wordPts_length)
+        this->wordPts = (rtabmap_ros::Point3f*)realloc(this->wordPts, wordPts_lengthT * sizeof(rtabmap_ros::Point3f));
+      wordPts_length = wordPts_lengthT;
+      for( uint32_t i = 0; i < wordPts_length; i++){
+      offset += this->st_wordPts.deserialize(inbuffer + offset);
+        memcpy( &(this->wordPts[i]), &(this->st_wordPts), sizeof(rtabmap_ros::Point3f));
+      }
+      uint32_t wordDescriptors_lengthT = ((uint32_t) (*(inbuffer + offset))); 
+      wordDescriptors_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      wordDescriptors_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      wordDescriptors_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      offset += sizeof(this->wordDescriptors_length);
+      if(wordDescriptors_lengthT > wordDescriptors_length)
+        this->wordDescriptors = (uint8_t*)realloc(this->wordDescriptors, wordDescriptors_lengthT * sizeof(uint8_t));
+      wordDescriptors_length = wordDescriptors_lengthT;
+      for( uint32_t i = 0; i < wordDescriptors_length; i++){
+      this->st_wordDescriptors =  ((uint8_t) (*(inbuffer + offset)));
+      offset += sizeof(this->st_wordDescriptors);
+        memcpy( &(this->wordDescriptors[i]), &(this->st_wordDescriptors), sizeof(uint8_t));
+      }
+      uint32_t globalDescriptors_lengthT = ((uint32_t) (*(inbuffer + offset))); 
+      globalDescriptors_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      globalDescriptors_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      globalDescriptors_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      offset += sizeof(this->globalDescriptors_length);
+      if(globalDescriptors_lengthT > globalDescriptors_length)
+        this->globalDescriptors = (rtabmap_ros::GlobalDescriptor*)realloc(this->globalDescriptors, globalDescriptors_lengthT * sizeof(rtabmap_ros::GlobalDescriptor));
+      globalDescriptors_length = globalDescriptors_lengthT;
+      for( uint32_t i = 0; i < globalDescriptors_length; i++){
+      offset += this->st_globalDescriptors.deserialize(inbuffer + offset);
+        memcpy( &(this->globalDescriptors[i]), &(this->st_globalDescriptors), sizeof(rtabmap_ros::GlobalDescriptor));
       }
      return offset;
     }
 
     const char * getType(){ return "rtabmap_ros/NodeData"; };
-    const char * getMD5(){ return "9ea28782bcb5ac28722f26aaaa7acb18"; };
+    const char * getMD5(){ return "dc837b2559983e5a01405231b9998dca"; };
 
   };
 

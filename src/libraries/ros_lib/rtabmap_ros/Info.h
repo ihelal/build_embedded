@@ -24,6 +24,10 @@ namespace rtabmap_ros
       _proximityDetectionId_type proximityDetectionId;
       typedef geometry_msgs::Transform _loopClosureTransform_type;
       _loopClosureTransform_type loopClosureTransform;
+      uint32_t wmState_length;
+      typedef int32_t _wmState_type;
+      _wmState_type st_wmState;
+      _wmState_type * wmState;
       uint32_t posteriorKeys_length;
       typedef int32_t _posteriorKeys_type;
       _posteriorKeys_type st_posteriorKeys;
@@ -85,6 +89,7 @@ namespace rtabmap_ros
       loopClosureId(0),
       proximityDetectionId(0),
       loopClosureTransform(),
+      wmState_length(0), wmState(NULL),
       posteriorKeys_length(0), posteriorKeys(NULL),
       posteriorValues_length(0), posteriorValues(NULL),
       likelihoodKeys_length(0), likelihoodKeys(NULL),
@@ -137,6 +142,23 @@ namespace rtabmap_ros
       *(outbuffer + offset + 3) = (u_proximityDetectionId.base >> (8 * 3)) & 0xFF;
       offset += sizeof(this->proximityDetectionId);
       offset += this->loopClosureTransform.serialize(outbuffer + offset);
+      *(outbuffer + offset + 0) = (this->wmState_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (this->wmState_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (this->wmState_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (this->wmState_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->wmState_length);
+      for( uint32_t i = 0; i < wmState_length; i++){
+      union {
+        int32_t real;
+        uint32_t base;
+      } u_wmStatei;
+      u_wmStatei.real = this->wmState[i];
+      *(outbuffer + offset + 0) = (u_wmStatei.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_wmStatei.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_wmStatei.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_wmStatei.base >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->wmState[i]);
+      }
       *(outbuffer + offset + 0) = (this->posteriorKeys_length >> (8 * 0)) & 0xFF;
       *(outbuffer + offset + 1) = (this->posteriorKeys_length >> (8 * 1)) & 0xFF;
       *(outbuffer + offset + 2) = (this->posteriorKeys_length >> (8 * 2)) & 0xFF;
@@ -399,6 +421,28 @@ namespace rtabmap_ros
       this->proximityDetectionId = u_proximityDetectionId.real;
       offset += sizeof(this->proximityDetectionId);
       offset += this->loopClosureTransform.deserialize(inbuffer + offset);
+      uint32_t wmState_lengthT = ((uint32_t) (*(inbuffer + offset))); 
+      wmState_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      wmState_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      wmState_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      offset += sizeof(this->wmState_length);
+      if(wmState_lengthT > wmState_length)
+        this->wmState = (int32_t*)realloc(this->wmState, wmState_lengthT * sizeof(int32_t));
+      wmState_length = wmState_lengthT;
+      for( uint32_t i = 0; i < wmState_length; i++){
+      union {
+        int32_t real;
+        uint32_t base;
+      } u_st_wmState;
+      u_st_wmState.base = 0;
+      u_st_wmState.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_st_wmState.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_st_wmState.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_st_wmState.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      this->st_wmState = u_st_wmState.real;
+      offset += sizeof(this->st_wmState);
+        memcpy( &(this->wmState[i]), &(this->st_wmState), sizeof(int32_t));
+      }
       uint32_t posteriorKeys_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       posteriorKeys_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       posteriorKeys_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
@@ -696,7 +740,7 @@ namespace rtabmap_ros
     }
 
     const char * getType(){ return "rtabmap_ros/Info"; };
-    const char * getMD5(){ return "f9cc2e215f6cae05161c74d102ffc592"; };
+    const char * getMD5(){ return "dd8620be5f7bd87dac1670b11dc3540d"; };
 
   };
 

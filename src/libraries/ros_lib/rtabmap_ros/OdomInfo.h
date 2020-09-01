@@ -33,6 +33,10 @@ namespace rtabmap_ros
       _icpTranslation_type icpTranslation;
       typedef float _icpStructuralComplexity_type;
       _icpStructuralComplexity_type icpStructuralComplexity;
+      typedef float _icpStructuralDistribution_type;
+      _icpStructuralDistribution_type icpStructuralDistribution;
+      typedef int32_t _icpCorrespondences_type;
+      _icpCorrespondences_type icpCorrespondences;
       float covariance[36];
       typedef int32_t _features_type;
       _features_type features;
@@ -62,6 +66,10 @@ namespace rtabmap_ros
       _distanceTravelled_type distanceTravelled;
       typedef int32_t _memoryUsage_type;
       _memoryUsage_type memoryUsage;
+      typedef float _gravityRollError_type;
+      _gravityRollError_type gravityRollError;
+      typedef float _gravityPitchError_type;
+      _gravityPitchError_type gravityPitchError;
       typedef geometry_msgs::Transform _transform_type;
       _transform_type transform;
       typedef geometry_msgs::Transform _transformFiltered_type;
@@ -122,6 +130,8 @@ namespace rtabmap_ros
       icpRotation(0),
       icpTranslation(0),
       icpStructuralComplexity(0),
+      icpStructuralDistribution(0),
+      icpCorrespondences(0),
       covariance(),
       features(0),
       localMapSize(0),
@@ -137,6 +147,8 @@ namespace rtabmap_ros
       interval(0),
       distanceTravelled(0),
       memoryUsage(0),
+      gravityRollError(0),
+      gravityPitchError(0),
       transform(),
       transformFiltered(),
       transformGroundTruth(),
@@ -226,6 +238,26 @@ namespace rtabmap_ros
       *(outbuffer + offset + 2) = (u_icpStructuralComplexity.base >> (8 * 2)) & 0xFF;
       *(outbuffer + offset + 3) = (u_icpStructuralComplexity.base >> (8 * 3)) & 0xFF;
       offset += sizeof(this->icpStructuralComplexity);
+      union {
+        float real;
+        uint32_t base;
+      } u_icpStructuralDistribution;
+      u_icpStructuralDistribution.real = this->icpStructuralDistribution;
+      *(outbuffer + offset + 0) = (u_icpStructuralDistribution.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_icpStructuralDistribution.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_icpStructuralDistribution.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_icpStructuralDistribution.base >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->icpStructuralDistribution);
+      union {
+        int32_t real;
+        uint32_t base;
+      } u_icpCorrespondences;
+      u_icpCorrespondences.real = this->icpCorrespondences;
+      *(outbuffer + offset + 0) = (u_icpCorrespondences.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_icpCorrespondences.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_icpCorrespondences.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_icpCorrespondences.base >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->icpCorrespondences);
       for( uint32_t i = 0; i < 36; i++){
       offset += serializeAvrFloat64(outbuffer + offset, this->covariance[i]);
       }
@@ -366,6 +398,26 @@ namespace rtabmap_ros
       *(outbuffer + offset + 2) = (u_memoryUsage.base >> (8 * 2)) & 0xFF;
       *(outbuffer + offset + 3) = (u_memoryUsage.base >> (8 * 3)) & 0xFF;
       offset += sizeof(this->memoryUsage);
+      union {
+        float real;
+        uint32_t base;
+      } u_gravityRollError;
+      u_gravityRollError.real = this->gravityRollError;
+      *(outbuffer + offset + 0) = (u_gravityRollError.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_gravityRollError.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_gravityRollError.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_gravityRollError.base >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->gravityRollError);
+      union {
+        float real;
+        uint32_t base;
+      } u_gravityPitchError;
+      u_gravityPitchError.real = this->gravityPitchError;
+      *(outbuffer + offset + 0) = (u_gravityPitchError.base >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (u_gravityPitchError.base >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (u_gravityPitchError.base >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (u_gravityPitchError.base >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->gravityPitchError);
       offset += this->transform.serialize(outbuffer + offset);
       offset += this->transformFiltered.serialize(outbuffer + offset);
       offset += this->transformGroundTruth.serialize(outbuffer + offset);
@@ -587,6 +639,28 @@ namespace rtabmap_ros
       u_icpStructuralComplexity.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
       this->icpStructuralComplexity = u_icpStructuralComplexity.real;
       offset += sizeof(this->icpStructuralComplexity);
+      union {
+        float real;
+        uint32_t base;
+      } u_icpStructuralDistribution;
+      u_icpStructuralDistribution.base = 0;
+      u_icpStructuralDistribution.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_icpStructuralDistribution.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_icpStructuralDistribution.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_icpStructuralDistribution.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      this->icpStructuralDistribution = u_icpStructuralDistribution.real;
+      offset += sizeof(this->icpStructuralDistribution);
+      union {
+        int32_t real;
+        uint32_t base;
+      } u_icpCorrespondences;
+      u_icpCorrespondences.base = 0;
+      u_icpCorrespondences.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_icpCorrespondences.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_icpCorrespondences.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_icpCorrespondences.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      this->icpCorrespondences = u_icpCorrespondences.real;
+      offset += sizeof(this->icpCorrespondences);
       for( uint32_t i = 0; i < 36; i++){
       offset += deserializeAvrFloat64(inbuffer + offset, &(this->covariance[i]));
       }
@@ -741,6 +815,28 @@ namespace rtabmap_ros
       u_memoryUsage.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
       this->memoryUsage = u_memoryUsage.real;
       offset += sizeof(this->memoryUsage);
+      union {
+        float real;
+        uint32_t base;
+      } u_gravityRollError;
+      u_gravityRollError.base = 0;
+      u_gravityRollError.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_gravityRollError.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_gravityRollError.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_gravityRollError.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      this->gravityRollError = u_gravityRollError.real;
+      offset += sizeof(this->gravityRollError);
+      union {
+        float real;
+        uint32_t base;
+      } u_gravityPitchError;
+      u_gravityPitchError.base = 0;
+      u_gravityPitchError.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      u_gravityPitchError.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
+      u_gravityPitchError.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
+      u_gravityPitchError.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
+      this->gravityPitchError = u_gravityPitchError.real;
+      offset += sizeof(this->gravityPitchError);
       offset += this->transform.deserialize(inbuffer + offset);
       offset += this->transformFiltered.deserialize(inbuffer + offset);
       offset += this->transformGroundTruth.deserialize(inbuffer + offset);
@@ -931,7 +1027,7 @@ namespace rtabmap_ros
     }
 
     const char * getType(){ return "rtabmap_ros/OdomInfo"; };
-    const char * getMD5(){ return "edc18a7e4a936ef7e55b956a4970261e"; };
+    const char * getMD5(){ return "66979b4899394b2f3358952241c550e5"; };
 
   };
 
