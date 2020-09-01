@@ -1,0 +1,165 @@
+#include <Arduino.h>
+#include <WiFi.h>
+#include <ESPmDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
+
+#include <ros.h>
+#include <std_msgs/String.h>
+#include <std_msgs/Int16.h>
+#include <std_msgs/Float64.h>
+
+const char* ssid = "AutoBot1_2G";
+const char* password = "mse2021cap";
+
+int LED_BUILTIN = 2;
+
+IPAddress server(192, 168, 100, 52); // ip of your ROS server
+IPAddress ip_address;
+int status = WL_IDLE_STATUS;
+
+WiFiClient client;
+
+class WiFiHardware {
+
+  public:
+  WiFiHardware() {};
+
+  void init() {
+    // do your initialization here. this probably includes TCP server/client setup
+    client.connect(server, 11411);
+  }
+
+  // read a byte from the serial port. -1 = failure
+  int read() {
+    // implement this method so that it reads a byte from the TCP connection and returns it
+    //  you may return -1 is there is an error; for example if the TCP connection is not open
+    return client.read();         //will return -1 when it will works
+  }
+
+  // write data to the connection to ROS
+  void write(uint8_t* data, int length) {
+    // implement this so that it takes the arguments and writes or prints them to the TCP connection
+    for(int i=0; i<length; i++)
+      client.write(data[i]);
+  }
+
+  // returns milliseconds since start of program
+  unsigned long time() {
+     return millis(); // easy; did this one for you
+  }
+};
+
+// void ros_setup(){
+//     IPAddress server(192, 168, 100, 52); // ip of your ROS server
+//     IPAddress ip_address;
+//     int i;
+
+//     void chatterCallback(const std_msgs::String& msg) {
+//         i = atoi(msg.data);
+//     }
+//     ros::Subscriber<std_msgs::String> sub("message", &chatterCallback);
+//     ros::NodeHandle_<WiFiHardware> nh;
+//     std_msgs::String str_msg;
+//     ros::Publisher pub("foo", &str_msg);
+// }
+
+void init_wifi(){
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  while (WiFi.waitForConnectResult() != WL_CONNECTED) {
+    Serial.println("Connection Failed! Rebooting...");
+    delay(5000);
+    ESP.restart();
+  }
+}
+void init_ota(){
+  ArduinoOTA
+    .onStart([]() {
+      String type;
+      if (ArduinoOTA.getCommand() == U_FLASH)
+        type = "sketch";
+      else // U_SPIFFS
+        type = "filesystem";
+
+      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+      Serial.println("Start updating " + type);
+    })
+    .onEnd([]() {
+      Serial.println("\nEnd");
+    })
+    .onProgress([](unsigned int progress, unsigned int total) {
+      Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    })
+    .onError([](ota_error_t error) {
+      Serial.printf("Error[%u]: ", error);
+      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+      else if (error == OTA_END_ERROR) Serial.println("End Failed");
+    });
+
+  ArduinoOTA.begin();
+}
+
+void setupWiFi()
+{
+  WiFi.begin(ssid, password);
+  Serial.print("\nConnecting to "); Serial.println(ssid);
+  uint8_t i = 0;
+  while (WiFi.status() != WL_CONNECTED && i++ < 20) delay(500);
+  if(i == 21){
+    Serial.print("Could not connect to"); Serial.println(ssid);
+    while(1) delay(500);
+  }
+  Serial.print("Ready! Use ");
+  Serial.print(WiFi.localIP());
+  Serial.println(" to access client");
+}
+
+// void init_ros(){
+//   nh.initNode();
+//   nh.subscribe(sub);
+//   nh.advertise(pub);
+// }
+
+// int i;
+
+// void chatterCallback(const std_msgs::String& msg) {
+//   i = atoi(msg.data);
+// }
+
+// ros::Subscriber<std_msgs::String> sub("message", &chatterCallback);
+// ros::NodeHandle_<WiFiHardware> nh;
+// std_msgs::String str_msg;
+// ros::Publisher pub("foo", &str_msg);
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("Booting");
+  setupWiFi();
+//   init_wifi();
+  init_ota();
+//   init_ros();
+//   delay(2000);
+
+  Serial.println("Ready");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+//   nh.initNode();
+//   nh.subscribe(sub);
+//   nh.advertise(pub);
+  pinMode (LED_BUILTIN, OUTPUT);
+}
+
+void loop() {
+    // digitalWrite(LED_BUILTIN, HIGH);
+    // delay(1000);
+    // digitalWrite(LED_BUILTIN, LOW);
+    // delay(1000);
+    // pub.publish( &str_msg );
+    // nh.spinOnce();
+    ArduinoOTA.handle();
+    // delay(0.1);
+}

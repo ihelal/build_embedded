@@ -1,0 +1,4 @@
+ <launch>
+  <node name="build_mcu" pkg="build_embedded" type="ota_build_upload.py" output="screen"> 
+  </node>
+  </launch>
